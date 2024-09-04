@@ -1,23 +1,31 @@
 const apiKey = '68f4o5290c2fb3fd7ac99fbd97a4dtd3'; // Replace with your OpenWeatherMap API key
 
-function search(event) {
-  event.preventDefault();
-  let searchInputElement = document.querySelector("#search-input");
-  let city = searchInputElement.value;
+// Fetch weather data for Paris on page load
+window.addEventListener('load', () => {
+  fetchWeather('Paris');
+});
 
-  // Fetch current weather
+function fetchWeather(city) {
+  // Fetch current weather data
   let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
   fetch(apiUrl)
     .then(response => response.json())
     .then(data => displayWeather(data))
     .catch(error => alert('City not found! Please try again.'));
 
-  // Fetch 5-day forecast
+  // Fetch 5-day forecast data
   let forecastUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}`;
   fetch(forecastUrl)
     .then(response => response.json())
-    .then(data => displayForecast(data.daily))
+    .then(data => updateForecast(data.daily))
     .catch(error => console.error('Error fetching forecast:', error));
+}
+
+function search(event) {
+  event.preventDefault();
+  let searchInputElement = document.querySelector("#search-input");
+  let city = searchInputElement.value;
+  fetchWeather(city);
 }
 
 function displayWeather(data) {
@@ -33,10 +41,11 @@ function displayWeather(data) {
   iconElement.innerHTML = `<img src="${data.condition.icon_url}" alt="${data.condition.description}" style="width: 50px; height: 50px;" />`;
 }
 
-function displayForecast(forecast) {
+function updateForecast(forecast) {
   let forecastElement = document.querySelector("#forecast");
-  forecastElement.innerHTML = ""; // Clear previous forecast data
+  forecastElement.innerHTML = ""; // Clear previous forecast if any
 
+  // Generate and append forecast for the next 5 days
   forecast.slice(0, 5).forEach(day => {
     forecastElement.innerHTML += `
       <div class="forecast-day">
